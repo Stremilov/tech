@@ -27,8 +27,19 @@ class User(Base):
         return f"{self.id}, {self.username}, {self.email}, {self.registration_date}"
 
 
-def get_all_users() -> List[Type[User]]:
-    return session.query(User).all()
+def get_all_users() -> List[dict]:
+    users = session.query(User).all()
+    user_list = []
+    for user in users:
+        registration_date_str = user.registration_date.strftime('%Y-%m-%d %H:%M:%S')
+        user_dict = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'registration_time': registration_date_str  # Преобразование времени в строку в формате ISO
+        }
+        user_list.append(user_dict)
+    return user_list
 
 
 def add_user(user: User):

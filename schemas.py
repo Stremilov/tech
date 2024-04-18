@@ -1,5 +1,4 @@
-from marshmallow import Schema, fields, validates, ValidationError, post_load
-
+from marshmallow import Schema, fields, ValidationError, post_load
 from models import User
 
 

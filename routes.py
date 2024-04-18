@@ -1,17 +1,30 @@
 from flask import Flask, request
-from marshmallow import ValidationError
-from models import Base, engine, session, get_all_users, add_user, User
+from models import Base, engine, session, User
 from schemas import UserSchema
 from flask_restx import Resource, Api
+
+import structlog
+import logging
 
 app = Flask(__name__)
 api = Api(app)
 
 
+logging.basicConfig(format="%(levelname)-8s [%(asctime)s] %(message)s", level=logging.INFO, filename='logs.log')
+logger = logging.getLogger(__name__)
+struct_logger = structlog.getLogger()
+
+
 @api.route("/api/users/<int:id>")
 class UserManage(Resource):
+    """
+    Get, update, delete user
+    """
     @api.doc(responses={200: 'Success', 404: 'User not found'}, params={'id': 'User ID'})
     def get(self, id):
+        """
+        Function displays complete user information
+        """
         user_ids = [data[0] for data in session.query(User.id).all()]
         user_data = None
         if id in user_ids:
@@ -22,11 +35,16 @@ class UserManage(Resource):
                 'email': user_row.email,
                 'registration_date': registration_date_str
             }
-        return {'user_data': user_data}
+            return {'user_data': user_data}, 200
+        else:
+            return {"status": 404}
 
     @api.doc(responses={200: 'Success', 404: 'User not found', 500: 'Internal Server Error'},
              params={'id': 'User ID'}, body=UserSchema)
     def put(self, id):
+        """
+        Function updates user data
+        """
         data = request.json
         user = session.query(User).get(id)
         if user:
@@ -44,6 +62,9 @@ class UserManage(Resource):
     @api.doc(responses={200: 'Success', 404: 'User not found', 500: 'Internal Server Error'},
              params={'id': 'User ID'})
     def delete(self, id):
+        """
+        Function deletes user
+        """
         user = session.query(User).get(id)
         if user:
             try:
@@ -61,20 +82,45 @@ class UserManage(Resource):
 class UsersList(Resource):
     @api.doc(responses={200: 'Success'})
     def get(self):
-        schema = UserSchema()
-        return schema.dump(get_all_users()), 200
+        """
+        Function gets all users
+        """
+        # schema = UserSchema()
+        # return schema.dump(get_all_users(), many=False), 200
+        users = session.query(User).all()
+        user_list = []
+        for user in users:
+            registration_date_str = user.registration_date.strftime('%Y-%m-%d %H:%M:%S')
+            user_dict = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'registration_time': registration_date_str  # Преобразование времени в строку в формате ISO
+            }
+            user_list.append(user_dict)
+        return user_list
 
     @api.doc(responses={201: 'Created', 400: 'Bad Request'}, body=UserSchema)
     def post(self):
+        """
+        Function add to DB new user
+        """
         data = request.json
-        print(data)
-        schema = UserSchema()
         try:
-            user = schema.load(data)
-        except ValidationError as exc:
-            return exc.messages, 400
-        user = add_user(user)
-        return schema.dump(user), 201
+            user = User(username=data['username'], email=data['email'])
+            session.add(user)
+            session.commit()
+            return {"status": "done"}
+        except Exception as e:
+            return {"error": str(e)}, 400
+        # schema = UserSchema()
+        # try:
+        #     user = schema.load(data)
+        # except ValidationError as exc:
+        #     return exc.messages, 400
+        # user = add_user(user)
+        # user_data = schema.dump(user, many=False)
+        # return user_data, 201
 
 
 if __name__ == "__main__":
