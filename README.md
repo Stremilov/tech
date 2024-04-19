@@ -1,4 +1,4 @@
-#User Management REST API
+# User Management REST API
 
 This project aims to develop a REST API for managing a list of users using a database. The API will provide endpoints to perform CRUD (Create, Read, Update, Delete) operations on user records stored in the database.
 
