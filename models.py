@@ -36,7 +36,7 @@ def get_all_users() -> List[dict]:
             'id': user.id,
             'username': user.username,
             'email': user.email,
-            'registration_time': registration_date_str  # Преобразование времени в строку в формате ISO
+            'registration_time': registration_date_str
         }
         user_list.append(user_dict)
     return user_list

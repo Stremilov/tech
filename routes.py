@@ -80,13 +80,13 @@ class UserManage(Resource):
 
 @api.route("/api/users")
 class UsersList(Resource):
+
     @api.doc(responses={200: 'Success'})
     def get(self):
+        # здесь можно юзануть схему
         """
         Function gets all users
         """
-        # schema = UserSchema()
-        # return schema.dump(get_all_users(), many=False), 200
         users = session.query(User).all()
         user_list = []
         for user in users:
@@ -95,13 +95,14 @@ class UsersList(Resource):
                 'id': user.id,
                 'username': user.username,
                 'email': user.email,
-                'registration_time': registration_date_str  # Преобразование времени в строку в формате ISO
+                'registration_time': registration_date_str
             }
             user_list.append(user_dict)
         return user_list
 
     @api.doc(responses={201: 'Created', 400: 'Bad Request'}, body=UserSchema)
     def post(self):
+        # и здесь можно юзануть схему
         """
         Function add to DB new user
         """
@@ -110,17 +111,9 @@ class UsersList(Resource):
             user = User(username=data['username'], email=data['email'])
             session.add(user)
             session.commit()
-            return {"status": "done"}
+            return {"status": "done"}, 201
         except Exception as e:
             return {"error": str(e)}, 400
-        # schema = UserSchema()
-        # try:
-        #     user = schema.load(data)
-        # except ValidationError as exc:
-        #     return exc.messages, 400
-        # user = add_user(user)
-        # user_data = schema.dump(user, many=False)
-        # return user_data, 201
 
 
 if __name__ == "__main__":

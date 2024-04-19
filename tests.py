@@ -1,36 +1,79 @@
-from unittest import TestCase
-from datetime import datetime
-from models import Base, User
-from models import app, session, engine
+import json
+import unittest
+from time import sleep
+
+from routes import app
 
 
-class TestUserEndpoints(TestCase):
+class TestUserManage(unittest.TestCase):
+    """
+    Testing endpoints
+    """
 
-    def create_app(self):
-        app.config['TESTING'] = True
-        return app
+    def test_add_user(self):
+        """
+        Adding user test
+        """
+        with app.test_client() as client:
+            response = client.post('/api/users', data=json.dumps({"username": "testClient", "email": "testEmail"}),
+                                   content_type='application/json')
+            self.assertEqual(response.status_code, 201)
 
-    def setUp(self):
-        Base.metadata.create_all(engine)
-        self.client = app.test_client()
-        self.add_sample_users()
-
-    def tearDown(self):
-        session.remove()
-        Base.metadata.drop_all(engine)
-
-    def add_sample_users(self):
-        user1 = User(username='user1', email='user1@example.com', registration_date=datetime.utcnow())
-        session.add(user1)
-        session.commit()
+    def test_get_all_users(self):
+        """
+        Get all users test
+        """
+        with app.test_client() as client:
+            response = client.get('/api/users')
+            self.assertEqual(response.status_code, 200)
 
     def test_get_user(self):
-        response = self.client.get('/api/users/1')
-        self.assertEqual(response.status_code, 200)
-        # Add more assertions to validate the response data
+        """
+        Test to get current user
+        """
+        with app.test_client() as client:
+            response = client.get('/api/users/1')
+            self.assertEqual(response.status_code, 200)
 
-    def test_get_user_not_found(self):
-        response = self.client.get('/api/users/999')
-        self.assertEqual(response.status_code, 404)
+    def test_update_user_by_username(self):
+        """
+        Test to update username
+        """
+        with app.test_client() as client:
+            response = client.put('/api/users/1', data=json.dumps({"username": "qwe"}), content_type='application/json')
+            self.assertEqual(response.status_code, 200)
 
-    # Add more test methods for other endpoints (PUT, DELETE, POST)
+    def test_update_user_by_email(self):
+        """
+        Test to update email
+        """
+        with app.test_client() as client:
+            response = client.put('/api/users/1', data=json.dumps({"email": "testUser@gmail.com"}), content_type='application/json')
+            self.assertEqual(response.status_code, 200)
+
+    def test_update_user_by_username_and_email(self):
+        """
+        Test to update username and email
+        """
+        with app.test_client() as client:
+            response = client.put('/api/users/1', data=json.dumps({"username": "qwe", "email": "testUser@gmail.com"}), content_type='application/json')
+            self.assertEqual(response.status_code, 200)
+
+
+class TestUserDelete(unittest.TestCase):
+
+    def test_delete_user(self):
+        """
+        Test delete user
+        """
+        with app.test_client() as client:
+            response = client.delete('/api/users/1')
+            self.assertEqual(response.status_code, 200)
+
+    def test_delete_user_fail(self):
+        """
+        Test delete user (fail)
+        """
+        with app.test_client() as client:
+            response = client.delete('/api/users/1')
+            self.assertEqual(response.status_code, 404)
