@@ -1,3 +1,45 @@
+User Management REST API
+
+This project aims to develop a REST API for managing a list of users using a database. The API will provide endpoints to perform CRUD (Create, Read, Update, Delete) operations on user records stored in the database.
+
+## Features
+
+- Create User: Allow the creation of new user records by providing necessary details such as username and email.
+- Read User: Retrieve user information by either querying all users or fetching a specific user by their unique identifier.
+- Update User: Update user details like username or email for a particular user.
+- Delete User: Remove a user from the system based on their ID.
+
+## Technologies Used
+
+- Flask: Python web framework for building the REST API endpoints.
+- SQLite: Lightweight relational database management system for storing user data.
+- RESTful API: Conforming to REST principles for designing the API endpoints.
+- HTTP Methods: Using POST, GET, PUT, and DELETE methods for performing CRUD operations.
+
+## Getting Started
+
+1. Clone the repository to your local machine.
+2. Install the required dependencies by running pip install -r requirements.txt.
+3. Set up the database connection details in the configuration file.
+4. Run the Flask application using python app.py.
+5. Access the API endpoints to interact with the user management system.
+
+## Endpoints
+
+- POST /api/users: Create a new user by providing username and email.
+- GET /api/users: Retrieve all users in the database.
+- GET /api/users/{id}: Fetch a specific user by their ID.
+- PUT /api/users/{id}: Update user details such as username or email.
+- DELETE /api/users/{id}: Delete a user from the system by their ID.
+
+## Implementation Details
+
+- The Flask web application serves as the backend for the API.
+- User data is stored and managed using a SQLite database.
+- Unit tests are provided in the tests.py file to ensure the functionality of the API endpoints.
+
+
+
 # Routes.py 
 
 This file contains the routes for interacting with the User resource in the API.
